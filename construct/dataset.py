@@ -17,7 +17,7 @@ import os
 
 
 def default_loader(path):
-    return Image.open(path).convert('RGB')
+    return Image.open(path)
 
 
 class MyDataset(Dataset):
@@ -37,11 +37,13 @@ class MyDataset(Dataset):
 
     def __getitem__(self, index):
         fn, label = self.imgs[index]
-        img = self.loader(fn)
+        img = np.array(self.loader(fn))
         target = self.loader(label)
         if self.transform is not None:
             img = self.transform(img)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
         return img, target
 
-    def __len(self):
+    def __len__(self):
         return len(self.imgs)

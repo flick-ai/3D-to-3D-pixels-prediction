@@ -27,11 +27,13 @@ def project():
         np.save(save_path + '/3D/' + str(j) + '.npy', sum_img)
         projection = np.sum(sum_img, axis=1)
         # 将投影转换至uint8
-        projection = projection / projection.max()
+        projection = projection / np.max(projection)
         projection = np.clip(projection, 0, 1)
         projection = np.uint8(projection * 255)
+
         # 将投影做180度上下翻转至GroundTruth对应空间
         projection = np.flip(projection, 0)
+        print(np.max(projection))
         # 保存原始投影图像
         cv2.imwrite(save_path + "/2D/" + str(j) + ".bmp", projection)
         # /print(os.path.exists(save_path + "/2D"))

@@ -1,20 +1,58 @@
 # 主控制文件，在此处输入网络控制命令
-from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+import torch
+from torchvision import datasets
+from torch.utils.data import DataLoader
+from torchvision.transforms import ToTensor
+from torchvision.transforms import Normalize
+from torchvision.transforms import Compose
+import torch.nn.functional as F
+from torch import nn
+from pylab import *
+from construct.dataset import MyDataset
+import Args
+from model.Unet import U_Net
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+# 预设数据
+batch_size = 2
+learning_rate = 0.0001
+CUDA_on = True
+cuda = CUDA_on and torch.cuda.is_available()
+device = torch.device("cuda" if cuda else "cpu")
+model = U_Net().to(device)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+# 导入数据
+train_data = MyDataset(Args.Train, transform=ToTensor(), target_transform=ToTensor())
+train = DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
-x = [0, 2, 1, 1]
-y = [0, 0, 1, 0]
-z = [0, 0, 0, 1]
 
-vertices = [[0, 1, 2], [0, 1, 3], [0, 2, 3], [1, 2, 3]]
+class CrossEntropyLoss2d(nn.Module):
+    def __init__(self, weight=None, size_average=True, ignore_index=255):
+        super(CrossEntropyLoss2d, self).__init__()
+        self.nll_loss = nn.NLLLoss(weight, size_average, ignore_index)
 
-tupleList = list(zip(x, y, z))
+    def forward(self, inputs, targets):
+        return self.nll_loss(torch.log(inputs), targets)
 
-poly3d = [[tupleList[vertices[ix][iy]] for iy in range(len(vertices[0]))] for ix in range(len(vertices))]
-ax.scatter(x,y,z)
-ax.add_collection3d(Poly3DCollection(poly3d, facecolors='w', linewidths=1, alpha=0.5))
 
-plt.show()
+func = CrossEntropyLoss2d()
+
+model.train()
+
+
+def train_func(epoch1):
+    for batch_idx, (data, target) in enumerate(train):
+        data, target = data.float(), target.float()
+        data, target = data.to(device), target.to(device)
+        output = model(data)
+        optimizer.zero_grad()
+        loss = nn.MSELoss()(output, target)
+        loss.backward()
+        optimizer.step()
+        if batch_idx % 10 == 0:
+            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.
+                  format(epoch1, batch_idx * len(data), len(train_data),
+                         100. * batch_idx / len(train_data), loss.item()))
+
+
+for epoch in range(1, 5):
+    train_func(epoch)

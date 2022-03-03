@@ -10,7 +10,6 @@ import Args
 
 def divide():
     path = Args.OCTA_3D
-    
     return
 
 

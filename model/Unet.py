@@ -1,6 +1,6 @@
 # 网络模型文件，本文件添加我们需要的网络模型代码
 """
-This part contains UNet series models, 
+This part contains UNet series models,
 including UNet, R2UNet, Attention UNet, R2Attention UNet, DenseUNet
 """
 
