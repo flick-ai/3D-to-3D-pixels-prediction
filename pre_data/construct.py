@@ -4,13 +4,16 @@ import cv2
 import os
 from NLM import NLM
 from SSIM import SSIM
+import sys
+sys.path.append("..")
+import Args
 
 
 def project():
     # 请使用者在此处添加你所使用的数据集的绝对路径
-    path = "D:/Filez/DownLoad/Homework/OCTA/OCTA_6M_OCTA"
+    path = Args.OCTA_path
     # 请使用者在此处添加你所使用的数据集的保存路径
-    save_path = "D:/Filez/DownLoad/Homework/OCTA/OCTA_2D"
+    save_path = Args.OCTA_3D
     pack_img = np.arange(10001, 10301, 1)
     div_img = np.arange(1, 401, 1)
     for j in pack_img:
